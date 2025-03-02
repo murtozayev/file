@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video</title>
+</head>
+
+<body>
+    <div id="media-container"></div>
+</body>
+
+
+<script>
+    const mediaContainer = document.querySelector("#media-container");
+
+    const getMedia = async () => {
+        try {
+            const res = await fetch("http://localhost:5000/everyfile");
+            const media = await res.json();
+            return media;
+        } catch (error) {
+            console.log(error);
+            return [];
+        }
+    };
+
+    const initMedia = async () => {
+        const media = await getMedia();
+        const videoFormats = ["mp4", "webm", "ogg"];
+        const imageFormats = ["jpg", "jpeg", "png", "gif", "webp"];
+
+        mediaContainer.innerHTML = "";
+
+        media.forEach(item => {
+            const ext = item.url.split('.').pop().split('?')[0].toLowerCase(); // Fayl kengaytmasi
+            let mediaElement;
+
+            if (videoFormats.includes(ext)) {
+                // Video element yaratish
+                mediaElement = document.createElement("video");
+                mediaElement.src = item.url;
+                mediaElement.controls = true;
+                mediaElement.width = 400;
+            } else if (imageFormats.includes(ext)) {
+                // Rasm element yaratish
+                mediaElement = document.createElement("img");
+                mediaElement.src = item.url;
+                mediaElement.width = 300;
+            } else {
+                // Boshqa fayllar uchun link yaratish
+                mediaElement = document.createElement("a");
+                mediaElement.href = item.url;
+                mediaElement.textContent = "Yuklab olish: " + item.url.split("/").pop();
+                mediaElement.target = "_blank";
+            }
+
+            mediaContainer.appendChild(mediaElement);
+        });
+    };
+
+    document.addEventListener("DOMContentLoaded", initMedia);
+
+
+
+
+</script>
+
+</html>
